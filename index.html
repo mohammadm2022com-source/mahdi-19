@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نامه سورپرایز</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="stars"></div> <!-- آسمان شب -->
+    <div id="particles"></div> <!-- ذرات نور -->
+    
+    <div class="envelope" onclick="openLetter()">
+        <div class="flap"></div>
+        <div class="body"></div>
+    </div>
+
+    <div class="letter" id="letter">
+        <div class="candle"></div> <!-- شمع متحرک -->
+        <div id="lines"></div>
+        <button onclick="closeLetter()">بستن نامه</button>
+    </div>
+
+    <audio id="bg-music" loop><source src="music.mp3" type="audio/mpeg"></audio>
+    <script src="script.js"></script>
+</body>
+</html>
