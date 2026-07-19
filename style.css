@@ -1,27 +1,336 @@
-body { background: #0b0e14; overflow: hidden; margin: 0; }
-.night-sky { position: absolute; width: 100%; height: 100%; background: radial-gradient(circle, #1b2735 0%, #090a0f 100%); }
-
-.envelope {
-    position: relative;
-    width: 300px; height: 200px;
-    background: #d4a373;
-    margin: 20% auto;
-    transition: transform 0.6s;
-    transform-style: preserve-3d;
-    cursor: pointer;
+/* ----- reset & base ----- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
 }
 
-.letter {
-    position: absolute;
-    width: 280px; height: 180px;
-    background: #fefae0;
-    top: 0; left: 10px;
-    transition: transform 0.6s;
-    z-index: -1;
-    padding: 20px;
-    font-family: 'Tahoma', sans-serif;
+body {
+  min-height: 100vh;
+  background: #0b0e1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Segoe UI', 'Tahoma', 'Roboto', sans-serif;
+  padding: 12px;
+  margin: 0;
+  overflow: hidden;
 }
 
-/* افکت باز شدن */
-.open .letter { transform: translateY(-150px); }
-.open .flap { transform: rotateX(-180deg); }
+/* ----- sky background with twinkling stars (canvas behind) ----- */
+#starfield {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ----- main card (3D envelope container) ----- */
+.envelope-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 1 / 1.2;
+  z-index: 10;
+  perspective: 1200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+/* 3D envelope */
+.envelope-3d {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform: rotateY(0deg) rotateX(2deg);
+  transition: transform 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+  cursor: pointer;
+}
+
+/* envelope faces */
+.envelope-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: visible;
+  border-radius: 24px 24px 18px 18px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.7), inset 0 0 30px rgba(255,215,150,0.3);
+  background: #c9a87c;
+  background-image: 
+    repeating-linear-gradient(45deg, rgba(180, 130, 80, 0.1) 0px, rgba(180, 130, 80, 0.1) 2px, transparent 2px, transparent 6px),
+    radial-gradient(circle at 30% 40%, #e8d5b0 0%, #b58b5a 90%);
+  transition: transform 0.6s ease, box-shadow 0.4s;
+  border: 1px solid #b38b5a;
+  overflow: hidden;
+}
+
+/* front face with extra paper texture */
+.envelope-front {
+  background-image: 
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.3 0"/></filter><rect width="100" height="100" filter="url(%23noise)" opacity="0.25"/></svg>'),
+    radial-gradient(circle at 20% 30%, #f2e2c6, #c09a6b);
+  background-blend-mode: overlay, normal;
+  box-shadow: inset 0 -8px 20px rgba(0,0,0,0.3), 0 12px 30px rgba(0,0,0,0.6);
+}
+
+/* envelope back (hidden by default) */
+.envelope-back {
+  transform: rotateY(180deg);
+  background: #b48b5a;
+  background-image: repeating-linear-gradient(45deg, #a77a4a 0px, #a77a4a 1px, #c8a074 1px, #c8a074 4px);
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.4);
+  border: 1px solid #8f6d43;
+}
+
+/* ----- letter (inside) with old paper texture & shadow ----- */
+.letter-content {
+  position: absolute;
+  top: 6%;
+  left: 6%;
+  width: 88%;
+  height: 88%;
+  background: #f7efe0;
+  background-image: 
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.2 0"/></filter><rect width="100" height="100" filter="url(%23n)" opacity="0.2"/></svg>'),
+    linear-gradient(145deg, #f3e6d2, #dcc29e);
+  background-blend-mode: overlay, normal;
+  border-radius: 16px 16px 12px 12px;
+  box-shadow: inset 0 0 20px rgba(100, 70, 30, 0.3), 0 8px 25px rgba(0,0,0,0.5);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  transform: translateZ(20px) scale(0.96);
+  transition: transform 0.6s ease, opacity 0.5s;
+  opacity: 0;
+  pointer-events: none;
+  overflow-y: auto;
+  border: 1px solid #dac29e;
+  color: #2d1f0e;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  font-weight: 400;
+  letter-spacing: 0.4px;
+  direction: rtl;
+  text-align: justify;
+  scrollbar-width: thin;
+  scrollbar-color: #b38b5a #f0e0ca;
+}
+
+.letter-content::-webkit-scrollbar {
+  width: 4px;
+}
+.letter-content::-webkit-scrollbar-track {
+  background: #f0e0ca;
+}
+.letter-content::-webkit-scrollbar-thumb {
+  background: #b38b5a;
+  border-radius: 20px;
+}
+
+/* show letter when envelope is open */
+.envelope-3d.open .letter-content {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateZ(40px) scale(0.98);
+}
+
+/* ----- rose petals (floating) ----- */
+.petals-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+  overflow: hidden;
+}
+
+.petal {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  background: radial-gradient(circle at 30% 30%, #ffb3b3, #d65a5a, #a33b3b);
+  border-radius: 70% 10% 60% 30% / 40% 50% 30% 60%;
+  opacity: 0.75;
+  filter: drop-shadow(2px 6px 8px rgba(0,0,0,0.2));
+  transform: rotate(0deg) scale(0.6);
+  animation: floatPetal 18s infinite ease-in-out alternate;
+  will-change: transform, top, left;
+}
+
+@keyframes floatPetal {
+  0% { transform: translate(0, 0) rotate(0deg) scale(0.6); opacity: 0.3; }
+  30% { opacity: 0.9; }
+  70% { opacity: 0.6; }
+  100% { transform: translate(40px, -120px) rotate(380deg) scale(1.2); opacity: 0.2; }
+}
+
+/* ----- candles with flame (floating & movable) ----- */
+.candles-container {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  padding: 0 12px;
+  z-index: 8;
+  pointer-events: none;
+}
+.candle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  filter: drop-shadow(0 10px 10px rgba(255,200,100,0.2));
+  animation: candleFloat 5s ease-in-out infinite alternate;
+}
+.candle-body {
+  width: 12px;
+  height: 48px;
+  background: linear-gradient(180deg, #f5e3c1, #d6b48c, #b58b5a);
+  border-radius: 6px 6px 3px 3px;
+  border: 1px solid #bb8a5a;
+  box-shadow: inset -2px -2px 10px rgba(0,0,0,0.2);
+}
+.flame {
+  width: 16px;
+  height: 28px;
+  background: radial-gradient(circle at 30% 20%, #fff8e0, #ffb347, #d4500c);
+  border-radius: 50% 50% 30% 30% / 60% 60% 20% 20%;
+  margin-bottom: 2px;
+  animation: flicker 0.8s infinite alternate ease-in-out;
+  box-shadow: 0 0 30px #ffb347, 0 0 60px #ff7f00;
+  transform-origin: bottom;
+}
+
+@keyframes flicker {
+  0% { transform: scale(1) rotate(-2deg); opacity: 0.9; }
+  100% { transform: scale(1.2) rotate(4deg); opacity: 1; }
+}
+@keyframes candleFloat {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-12px); }
+}
+
+/* ----- light particles (floating dots) ----- */
+.particles-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+.particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: radial-gradient(circle, #fff9e6, #ffd58c);
+  border-radius: 50%;
+  box-shadow: 0 0 20px #ffb74d;
+  opacity: 0.5;
+  animation: floatParticle 12s infinite alternate ease-in-out;
+}
+@keyframes floatParticle {
+  0% { transform: translate(0, 0) scale(0.8); opacity: 0.1; }
+  100% { transform: translate(60px, -160px) scale(1.6); opacity: 0.7; }
+}
+
+/* ----- audio controls (music toggle) ----- */
+.music-control {
+  position: fixed;
+  bottom: 80px;
+  left: 20px;
+  z-index: 20;
+  background: rgba(20, 15, 10, 0.7);
+  backdrop-filter: blur(6px);
+  border-radius: 40px;
+  padding: 10px 16px;
+  color: #f0e0c0;
+  border: 1px solid #b58b5a;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.music-control i {
+  font-size: 1.4rem;
+  color: #f7d99e;
+}
+.music-control span {
+  font-size: 0.8rem;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+}
+
+/* ----- paragraph typing area ----- */
+.typing-area {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #2d1f0e;
+  min-height: 80px;
+  padding: 4px 0;
+  border-top: 1px dashed #b38b5a;
+  direction: rtl;
+  text-align: justify;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.type-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: #5f3f1a;
+  margin-right: 2px;
+  animation: blink 0.9s step-end infinite;
+  vertical-align: text-bottom;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ----- close button (inside letter) ----- */
+.close-letter-btn {
+  margin-top: 12px;
+  background: #b38b5a;
+  border: none;
+  color: #1f1509;
+  padding: 8px 16px;
+  border-radius: 40px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  transition: 0.2s;
+  width: fit-content;
+  align-self: center;
+  background: #dbb88a;
+  border: 1px solid #a77a4a;
+}
+.close-letter-btn:hover {
+  background: #c9a074;
+  transform: scale(1.02);
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+  .envelope-wrapper { max-width: 340px; }
+  .letter-content { font-size: 0.8rem; padding: 12px 14px; }
+  .candles-container { bottom: 12px; }
+  .music-control { bottom: 70px; left: 12px; padding: 6px 12px; }
+}
