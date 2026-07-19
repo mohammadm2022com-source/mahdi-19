@@ -1,20 +1,27 @@
-const audio = document.getElementById('bg-music');
+body { background: #0b0e14; overflow: hidden; margin: 0; }
+.night-sky { position: absolute; width: 100%; height: 100%; background: radial-gradient(circle, #1b2735 0%, #090a0f 100%); }
 
-function openLetter() {
-    audio.play();
-    document.getElementById('letter').classList.add('active');
-    typeText("سلام عزیزم، این یک نامه مخصوص برای توست...");
+.envelope {
+    position: relative;
+    width: 300px; height: 200px;
+    background: #d4a373;
+    margin: 20% auto;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    cursor: pointer;
 }
 
-function typeText(text) {
-    let i = 0;
-    const target = document.getElementById('lines');
-    function typing() {
-        if (i < text.length) {
-            target.innerHTML += text.charAt(i);
-            i++;
-            setTimeout(typing, 100);
-        }
-    }
-    typing();
+.letter {
+    position: absolute;
+    width: 280px; height: 180px;
+    background: #fefae0;
+    top: 0; left: 10px;
+    transition: transform 0.6s;
+    z-index: -1;
+    padding: 20px;
+    font-family: 'Tahoma', sans-serif;
 }
+
+/* افکت باز شدن */
+.open .letter { transform: translateY(-150px); }
+.open .flap { transform: rotateX(-180deg); }
