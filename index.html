@@ -1,62 +1,192 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>پاکت سه‌بعدی | نامه عاشقانه</title>
-  <!-- Font Awesome for icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <!-- لینک به فایل استایل -->
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>نامه عاشقانه</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+
 </head>
+
 <body>
 
-  <!-- Starfield canvas -->
-  <canvas id="starfield"></canvas>
+    <audio id="music" loop>
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
 
-  <!-- Floating rose petals -->
-  <div class="petals-container" id="petalsContainer"></div>
+    <audio id="openSound">
+        <source src="open.mp3" type="audio/mpeg">
+    </audio>
 
-  <!-- Light particles -->
-  <div class="particles-container" id="particlesContainer"></div>
+    <audio id="closeSound">
+        <source src="close.mp3" type="audio/mpeg">
+    </audio>
 
-  <!-- Candles -->
-  <div class="candles-container" id="candlesContainer">
-    <div class="candle"><div class="flame"></div><div class="candle-body"></div></div>
-    <div class="candle"><div class="flame"></div><div class="candle-body"></div></div>
-    <div class="candle"><div class="flame"></div><div class="candle-body"></div></div>
-  </div>
+    <div id="stars"></div>
 
-  <!-- MUSIC CONTROL -->
-  <div class="music-control" id="musicToggle">
-    <i class="fas fa-music" id="musicIcon"></i>
-    <span>موسیقی</span>
-  </div>
+    <div id="particles"></div>
 
-  <!-- MAIN ENVELOPE 3D -->
-  <div class="envelope-wrapper">
-    <div class="envelope-3d" id="envelope3d">
-      <!-- front face -->
-      <div class="envelope-face envelope-front" id="envelopeFront">
-        <div style="position:absolute; bottom:18%; left:50%; transform:translateX(-50%); width:40px; height:40px; background:#9f7a4a; border-radius:50%; box-shadow: inset -2px -2px 8px #4d3518, 0 0 20px #c8a074; border: 1px solid #c8a074;"></div>
-      </div>
-      <!-- back face -->
-      <div class="envelope-face envelope-back"></div>
-      <!-- letter content inside -->
-      <div class="letter-content" id="letterContent">
-        <div style="font-weight:600; font-size:1rem; color:#4f351a; border-bottom:1px solid #b38b5a; padding-bottom:6px; margin-bottom:8px; display:flex; justify-content:space-between;">
-          <span>✉️ نامه</span>
-          <span style="font-size:0.7rem; opacity:0.7;">پاراگراف به پاراگراف</span>
-        </div>
-        <div class="typing-area" id="typingArea">
-          <span id="typeDisplay"></span><span class="type-cursor" id="typeCursor"></span>
-        </div>
-        <button class="close-letter-btn" id="closeLetterBtn"><i class="fas fa-envelope"></i> بستن نامه</button>
-      </div>
+    <div id="petals"></div>
+
+    <button id="musicBtn">
+
+        🔇
+
+    </button>
+
+    <div class="candle left">
+
+        <div class="flame"></div>
+
     </div>
-  </div>
 
-  <!-- لینک به فایل اسکریپت -->
-  <script src="script.js"></script>
+    <div class="candle right">
+
+        <div class="flame"></div>
+
+    </div>
+
+    <div class="scene">
+
+        <div class="envelope" id="envelope">
+
+            <div class="shadow"></div>
+
+            <div class="back"></div>
+
+            <div class="letter">
+
+                <div class="paper">
+
+                    <div class="paper-top"></div>
+
+                    <div class="paper-body">
+
+                        <h1>
+
+                            تولدت مبارک ❤️
+
+                        </h1>
+
+                        <div id="typing">
+
+                        </div>
+
+                        <button id="closeLetter">
+
+                            بستن نامه
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="front">
+
+                <div class="title">
+
+                    <div class="icon">
+
+                        ✉
+
+                    </div>
+
+                    <span>
+
+                        برای مهدی
+
+                    </span>
+
+                    <small>
+
+                        لمس کن
+
+                    </small>
+
+                </div>
+
+            </div>
+
+            <div class="flap">
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <template id="paragraphs">
+
+        <p>
+
+            سلام...
+
+        </p>
+
+        <p>
+
+            امروز فقط یک روز معمولی نیست...
+
+        </p>
+
+        <p>
+
+            امروز روزیه که خدا یکی از بهترین آدم‌های دنیا رو آفرید.
+
+        </p>
+
+        <p>
+
+            امیدوارم همیشه سالم باشی...
+
+        </p>
+
+        <p>
+
+            همیشه بخندی...
+
+        </p>
+
+        <p>
+
+            همیشه موفق باشی...
+
+        </p>
+
+        <p>
+
+            و هر آرزویی که داری...
+
+        </p>
+
+        <p>
+
+            بهش برسی...
+
+        </p>
+
+        <p>
+
+            تولدت هزاران بار مبارک ❤️
+
+        </p>
+
+    </template>
+
+    <script src="script.js"></script>
+
 </body>
+
 </html>
